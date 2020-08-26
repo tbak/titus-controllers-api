@@ -47,6 +47,30 @@ func TestComputeResource_Multiply(t *testing.T) {
 	assert.Equal(t, result, expected)
 }
 
+func TestAlignResourceRatios(t *testing.T) {
+	reference := ComputeResource{CPU: 8, GPU: 2, MemoryMB: 4096, DiskMB: 8192, NetworkMBPS: 128}
+
+	// CPU dominant resource == reference.CPU
+	result := ComputeResource{CPU: 8, GPU: 0, MemoryMB: 100, DiskMB: 200, NetworkMBPS: 100}.AlignResourceRatios(reference)
+	expected := ComputeResource{CPU: 8, GPU: 2, MemoryMB: 4096, DiskMB: 8192, NetworkMBPS: 128}
+	assert.Equal(t, result, expected)
+
+	// CPU dominant resource < reference.CPU
+	result = ComputeResource{CPU: 4, GPU: 0, MemoryMB: 100, DiskMB: 200, NetworkMBPS: 20}.AlignResourceRatios(reference)
+	expected = ComputeResource{CPU: 4, GPU: 1, MemoryMB: 2048, DiskMB: 4096, NetworkMBPS: 64}
+	assert.Equal(t, result, expected)
+
+	// CPU dominant resource > reference.CPU
+	result = ComputeResource{CPU: 12, GPU: 1, MemoryMB: 2, DiskMB: 3, NetworkMBPS: 4}.AlignResourceRatios(reference)
+	expected = ComputeResource{CPU: 12, GPU: 3, MemoryMB: 6144, DiskMB: 12288, NetworkMBPS: 192}
+	assert.Equal(t, result, expected)
+
+	// reference resource 0, but the target > 0
+	target := ComputeResource{CPU: 12, GPU: 1, MemoryMB: 2, DiskMB: 3, NetworkMBPS: 4}
+	result = target.AlignResourceRatios(ComputeResource{CPU: 8})
+	assert.Equal(t, result, target)
+}
+
 func TestComputeResource_CanSplitBy(t *testing.T) {
 	dividend := ComputeResource{CPU: 1, GPU: 0, MemoryMB: 2, DiskMB: 0, NetworkMBPS: 3}
 	assert.Assert(t, dividend.CanSplitBy(ComputeResource{CPU: 1, GPU: 0, MemoryMB: 1, DiskMB: 0, NetworkMBPS: 1}))

@@ -15,6 +15,8 @@ limitations under the License.
 */
 package v1
 
+import "math"
+
 // Data structure representing compute resources. We use uint64 type as aggregated resources
 // may amount to very large values.
 type ComputeResource struct {
@@ -82,6 +84,43 @@ func (r ComputeResource) Multiply(multiplier int64) ComputeResource {
 	}
 }
 
+func (r ComputeResource) Divide(divider int64) ComputeResource {
+	return ComputeResource{
+		CPU:         r.CPU / divider,
+		GPU:         r.GPU / divider,
+		MemoryMB:    r.MemoryMB / divider,
+		DiskMB:      r.DiskMB / divider,
+		NetworkMBPS: r.NetworkMBPS / divider,
+	}
+}
+
+// Align resource ratios to be the same as in the reference. The resulting ComputeResource is the smallest value that
+// is >= the original, with the resource ratios identical to the reference.
+func (r ComputeResource) AlignResourceRatios(reference ComputeResource) ComputeResource {
+	rdiv := func(currentMax float64, v1 int64, v2 int64) float64 {
+		if v2 == 0 {
+			return 0
+		}
+		return math.Max(currentMax, float64(v1)/float64(v2))
+	}
+	maxRatio := rdiv(0, r.CPU, reference.CPU)
+	maxRatio = rdiv(maxRatio, r.MemoryMB, reference.MemoryMB)
+	maxRatio = rdiv(maxRatio, r.DiskMB, reference.DiskMB)
+	maxRatio = rdiv(maxRatio, r.NetworkMBPS, reference.NetworkMBPS)
+
+	if maxRatio == 0 {
+		return r
+	}
+
+	return ComputeResource{
+		CPU:         int64(float64(reference.CPU) * maxRatio),
+		GPU:         int64(float64(reference.GPU) * maxRatio),
+		MemoryMB:    int64(float64(reference.MemoryMB) * maxRatio),
+		DiskMB:      int64(float64(reference.DiskMB) * maxRatio),
+		NetworkMBPS: int64(float64(reference.NetworkMBPS) * maxRatio),
+	}
+}
+
 // Check if can computes how many times the argument fully fits into the give resource.
 func (r ComputeResource) CanSplitBy(second ComputeResource) bool {
 	return (r.CPU == 0 || second.CPU != 0) &&
@@ -97,36 +136,26 @@ func (r ComputeResource) SplitBy(second ComputeResource) int64 {
 		return 0
 	}
 
-	rdiv := func(v1 int64, v2 int64) int64 {
-		if v1 == 0 {
-			return 0
+	rdiv := func(currentMin int64, v1 int64, v2 int64) int64 {
+		if v2 == 0 {
+			return currentMin
 		}
-		return v1 / v2
+		ratio := v1 / v2
+		if currentMin < 0 || ratio < currentMin {
+			return ratio
+		}
+		return currentMin
 	}
 
-	cpuCount := rdiv(r.CPU, second.CPU)
-	min := cpuCount
+	min := rdiv(-1, r.CPU, second.CPU)
+	min = rdiv(min, r.GPU, second.GPU)
+	min = rdiv(min, r.MemoryMB, second.MemoryMB)
+	min = rdiv(min, r.DiskMB, second.DiskMB)
+	min = rdiv(min, r.NetworkMBPS, second.NetworkMBPS)
 
-	gpuCount := rdiv(r.GPU, second.GPU)
-	if min > gpuCount {
-		min = gpuCount
+	if min == -1 {
+		return 0
 	}
-
-	memoryCount := rdiv(r.MemoryMB, second.MemoryMB)
-	if min > memoryCount {
-		min = memoryCount
-	}
-
-	diskCount := rdiv(r.DiskMB, second.DiskMB)
-	if min > diskCount {
-		min = diskCount
-	}
-
-	networkCount := rdiv(r.NetworkMBPS, second.NetworkMBPS)
-	if min > networkCount {
-		min = networkCount
-	}
-
 	return min
 }
 
