@@ -33,7 +33,24 @@ type ResourceDemandStatus struct {
 	StatusMessage string `json:"statusMessage"`
 
 	// Time at which the report was made.
-	ReportedAt uint64 `json:"reportedAt"`
+	ReportedAt int64 `json:"reportedAt"`
+}
+
+type ResourcePoolScalingRules struct {
+	// Minimum idle capacity measured in number of shapes.
+	MinIdle int64 `json:"minIdle"`
+
+	// Maximum idle capacity measured in number of shapes.
+	MaxIdle int64 `json:"maxIdle"`
+
+	// Resource pool minimum size limit (minimum number of shapes that can be ever allocated).
+	MinSize int64 `json:"minSize"`
+
+	// Resource pool maximum size limit (maximum number of shapes that can be ever allocated).
+	MaxSize int64 `json:"maxSize"`
+
+	// Set to true to enable auto scaling of this resource pool.
+	AutoScaleEnabled bool `json:"AutoScaleEnabled"`
 }
 
 type ResourcePoolSpec struct {
@@ -43,6 +60,9 @@ type ResourcePoolSpec struct {
 	// Preferential machine shape (minimum size and resource ratio). A total amount of requested resource is
 	// defined as resource_shape * resource_count.
 	ResourceShape ResourceShape `json:"resourceShape"`
+
+	// Resource pool scaling rules.
+	ScalingRules ResourcePoolScalingRules `json:"scalingRules"`
 
 	// Number of resource shapes requested. A total amount of requested resource is
 	// defined as resource_shape * resource_count.
