@@ -50,7 +50,7 @@ type ResourcePoolScalingRules struct {
 	MaxSize int64 `json:"maxSize"`
 
 	// Set to true to enable auto scaling of this resource pool.
-	AutoScaleEnabled bool `json:"AutoScaleEnabled"`
+	AutoScalingEnabled bool `json:"autoScalingEnabled"`
 }
 
 type ResourcePoolSpec struct {
