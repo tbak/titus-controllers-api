@@ -94,6 +94,32 @@ func (r ComputeResource) Divide(divider int64) ComputeResource {
 	}
 }
 
+// Compute a ratio for each resource pair (left.cpu / divider.cpu, etc), and return the maximum value.
+// Return -1, if there is any pair such that left > 0 and divider == 0.
+func (r ComputeResource) MaxRatio(divider ComputeResource) float64 {
+	if !r.CanSplitBy(divider) {
+		return -1
+	}
+
+	rdiv := func(currentMax float64, v1 int64, v2 int64) float64 {
+		if v2 == 0 {
+			return currentMax
+		}
+		ratio := float64(v1) / float64(v2)
+		if currentMax < 0 || ratio > currentMax {
+			return ratio
+		}
+		return currentMax
+	}
+
+	max := rdiv(-1, r.CPU, divider.CPU)
+	max = rdiv(max, r.GPU, divider.GPU)
+	max = rdiv(max, r.MemoryMB, divider.MemoryMB)
+	max = rdiv(max, r.DiskMB, divider.DiskMB)
+	max = rdiv(max, r.NetworkMBPS, divider.NetworkMBPS)
+	return max
+}
+
 // Align resource ratios to be the same as in the reference. The resulting ComputeResource is the smallest value that
 // is >= the original, with the resource ratios identical to the reference.
 func (r ComputeResource) AlignResourceRatios(reference ComputeResource) ComputeResource {
