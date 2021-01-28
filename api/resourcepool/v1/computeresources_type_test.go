@@ -64,6 +64,23 @@ func TestMaxRatio(t *testing.T) {
 	assert.Equal(t, result, 0.2)
 }
 
+func TestMaxRatioIgnoreZeros(t *testing.T) {
+	// Degenerate case where right side is 0, but left side is positive
+	result := ComputeResource{CPU: 1, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}.MaxRatioIgnoreZeros(
+		ComputeResource{CPU: 0, GPU: 1, MemoryMB: 1, DiskMB: 1, NetworkMBPS: 1})
+	assert.Equal(t, result, 5.0)
+
+	// CPU is dominant resource
+	result = ComputeResource{CPU: 2, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}.MaxRatioIgnoreZeros(
+		ComputeResource{CPU: 10, GPU: 20, MemoryMB: 30, DiskMB: 40, NetworkMBPS: 50})
+	assert.Equal(t, result, 0.2)
+
+	// Memory is dominant resource
+	result = ComputeResource{CPU: 1, GPU: 2, MemoryMB: 6, DiskMB: 4, NetworkMBPS: 5}.MaxRatioIgnoreZeros(
+		ComputeResource{CPU: 10, GPU: 20, MemoryMB: 30, DiskMB: 40, NetworkMBPS: 50})
+	assert.Equal(t, result, 0.2)
+}
+
 func TestAlignResourceRatios(t *testing.T) {
 	reference := ComputeResource{CPU: 8, GPU: 2, MemoryMB: 4096, DiskMB: 8192, NetworkMBPS: 128}
 

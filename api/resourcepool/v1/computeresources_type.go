@@ -120,6 +120,34 @@ func (r ComputeResource) MaxRatio(divider ComputeResource) float64 {
 	return max
 }
 
+// Similar to ComputeResource.MaxRatio, but ignoring dimensions for which divider value is 0.
+// For example, if r={cpu:4, memory=100} and divider={cpu:2, memory:0}, the result is 2. ComputeResource.MaxRatio would
+// return for this case -1.
+func (r ComputeResource) MaxRatioIgnoreZeros(divider ComputeResource) float64 {
+	rdiv := func(currentMax float64, v1 int64, v2 int64) float64 {
+		if v2 == 0 {
+			return currentMax
+		}
+		ratio := float64(v1) / float64(v2)
+		if ratio > currentMax {
+			return ratio
+		}
+		return currentMax
+	}
+
+	max := rdiv(-math.MaxFloat64, r.CPU, divider.CPU)
+	max = rdiv(max, r.GPU, divider.GPU)
+	max = rdiv(max, r.MemoryMB, divider.MemoryMB)
+	max = rdiv(max, r.DiskMB, divider.DiskMB)
+	max = rdiv(max, r.NetworkMBPS, divider.NetworkMBPS)
+
+	if max < 0 {
+		return 0
+	}
+
+	return max
+}
+
 // Align resource ratios to be the same as in the reference. The resulting ComputeResource is the smallest value that
 // is >= the original, with the resource ratios identical to the reference.
 func (r ComputeResource) AlignResourceRatios(reference ComputeResource) ComputeResource {
