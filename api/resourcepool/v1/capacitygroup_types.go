@@ -21,7 +21,7 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 type CapacityGroup struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata.omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec CapacityGroupSpec `json:"spec,omitempty"`
 }
@@ -30,6 +30,7 @@ type CapacityGroupSpec struct {
 	CapacityGroupName string `json:"capacityGroupName"`
 	ResourcePoolName  string `json:"resourcePoolName"`
 	SchedulerName     string `json:"schedulerName"`
+	CreatedBy         string `json:"createdBy"`
 	InstanceCount     uint32 `json:"instanceCount"`
 	ComputeResource   `json:"resourceDimensions"`
 }
@@ -38,7 +39,7 @@ type CapacityGroupSpec struct {
 
 type CapacityGroupList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []CapacityGroup `json:"items"`
 }
 
