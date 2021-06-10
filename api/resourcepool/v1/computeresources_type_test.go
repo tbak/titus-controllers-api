@@ -16,6 +16,7 @@ limitations under the License.
 package v1
 
 import (
+	"fmt"
 	"testing"
 
 	"gotest.tools/assert"
@@ -153,4 +154,20 @@ func TestComputeResource_IsAnyBelowZero(t *testing.T) {
 	assert.Assert(t, !Zero.IsAnyAboveZero())
 	assert.Assert(t, !ComputeResource{CPU: 0, GPU: 0, MemoryMB: 0, DiskMB: 1, NetworkMBPS: 0}.IsAnyBelowZero())
 	assert.Assert(t, ComputeResource{CPU: 0, GPU: 0, MemoryMB: 0, DiskMB: 1, NetworkMBPS: -1}.IsAnyBelowZero())
+}
+
+func TestSetAbove(t *testing.T) {
+	source := ComputeResource{CPU: 1, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}
+	assert.Assert(t, source.SetAbove(2) == ComputeResource{CPU: 2, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5})
+	assert.Assert(t, source.SetAbove(3) == ComputeResource{CPU: 3, GPU: 3, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5})
+	assert.Assert(t, source.SetAbove(4) == ComputeResource{CPU: 4, GPU: 4, MemoryMB: 4, DiskMB: 4, NetworkMBPS: 5})
+	assert.Assert(t, source.SetAbove(5) == ComputeResource{CPU: 5, GPU: 5, MemoryMB: 5, DiskMB: 5, NetworkMBPS: 5})
+	assert.Assert(t, source.SetAbove(6) == ComputeResource{CPU: 6, GPU: 6, MemoryMB: 6, DiskMB: 6, NetworkMBPS: 6})
+}
+
+func TestComputeResource_ToString(t *testing.T) {
+	assert.Equal(t,
+		fmt.Sprintf("%s", ComputeResource{CPU: 8, GPU: 2, MemoryMB: 4096, DiskMB: 8192, NetworkMBPS: 128}),
+		"{cpu=8, gpu=2, memoryMB=4096, diskMB=8192, networkMbps=128}",
+	)
 }
