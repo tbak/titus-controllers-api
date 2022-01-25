@@ -41,6 +41,23 @@ func TestComputeResource_SubWithLimit(t *testing.T) {
 	assert.Equal(t, result, Zero)
 }
 
+func TestComputeResource_FractionalMultiply(t *testing.T) {
+	result := ComputeResource{CPU: 2, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}.
+		FractionalMultiply(float64(25) / 100.0)
+	expected := ComputeResource{CPU: 1, GPU: 1, MemoryMB: 1, DiskMB: 1, NetworkMBPS: 1}
+	assert.Equal(t, result, expected)
+
+	result = ComputeResource{CPU: 96, GPU: 8, MemoryMB: 1157120, DiskMB: 1047552, NetworkMBPS: 400000}.
+		FractionalMultiply(float64(10) / 100.0)
+	expected = ComputeResource{CPU: 10, GPU: 1, MemoryMB: 115712, DiskMB: 104755, NetworkMBPS: 40000}
+	assert.Equal(t, result, expected)
+
+	result = ComputeResource{CPU: 2, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}.
+		FractionalMultiply(float64(200) / 100.0)
+	expected = ComputeResource{CPU: 4, GPU: 4, MemoryMB: 6, DiskMB: 8, NetworkMBPS: 10}
+	assert.Equal(t, result, expected)
+}
+
 func TestComputeResource_Multiply(t *testing.T) {
 	result := ComputeResource{CPU: 1, GPU: 2, MemoryMB: 3, DiskMB: 4, NetworkMBPS: 5}.Multiply(2)
 	expected := ComputeResource{CPU: 2, GPU: 4, MemoryMB: 6, DiskMB: 8, NetworkMBPS: 10}
