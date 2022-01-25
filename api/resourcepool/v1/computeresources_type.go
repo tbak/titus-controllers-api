@@ -88,6 +88,15 @@ func (r ComputeResource) SetAbove(lowerBound int64) ComputeResource {
 	}
 }
 
+func (r ComputeResource) FractionalMultiply(multiplier float64) ComputeResource {
+	return ComputeResource{
+		CPU:         int64(math.Round(float64(r.CPU) * multiplier)),
+		GPU:         int64(math.Round(float64(r.GPU) * multiplier)),
+		MemoryMB:    int64(math.Round(float64(r.MemoryMB) * multiplier)),
+		DiskMB:      int64(math.Round(float64(r.DiskMB) * multiplier)),
+		NetworkMBPS: int64(math.Round(float64(r.NetworkMBPS) * multiplier)),
+	}
+}
 func (r ComputeResource) Multiply(multiplier int64) ComputeResource {
 	return ComputeResource{
 		CPU:         r.CPU * multiplier,
