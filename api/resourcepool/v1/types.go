@@ -25,7 +25,8 @@ import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 type ResourcePoolConfig struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ResourcePoolSpec `json:"spec,omitempty"`
+	Spec              ResourcePoolSpec   `json:"spec,omitempty"`
+	Status            ResourcePoolStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -91,6 +92,17 @@ type ResourcePoolSpec struct {
 	// Time at which the last resource request was made.
 	RequestedAt int64 `json:"requestedAt"`
 
-	// Resource demand fulfillment report.
+	// [DEPRECATED] Resource demand fulfillment report.
 	Status ResourceDemandStatus `json:"resourceDemandStatus"`
+}
+
+type ResourcePoolStatus struct {
+	// Resource provisioning status (Pending, Rejected, Fulfilled)
+	Status string `json:"status"`
+
+	// Human readable message.
+	StatusMessage string `json:"statusMessage"`
+
+	// Time at which the report was made.
+	ReportedAt int64 `json:"reportedAt"`
 }
