@@ -4,5 +4,5 @@ go 1.16
 
 require (
 	gotest.tools v2.2.0+incompatible
-	k8s.io/apimachinery v0.21.12
+	k8s.io/apimachinery v0.22.10
 )
