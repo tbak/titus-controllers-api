@@ -35,8 +35,8 @@ type CapacityGroup struct {
 
 type CapacityGroupSpec struct {
 	CapacityGroupName      string `json:"capacityGroupName"`
-	OriginalName           string `json:"originalName"`
-	Tier                   string `json:"tier"`
+	OriginalName           string `json:"originalName,omitempty"`
+	Tier                   string `json:"tier,omitempty"`
 	ResourcePoolName       string `json:"resourcePoolName"`
 	SchedulerName          string `json:"schedulerName"`
 	CreatedBy              string `json:"createdBy"`
