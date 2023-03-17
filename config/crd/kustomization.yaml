@@ -1,0 +1,3 @@
+resources:
+- bases/capacity.titus.netflix.com_troughs.yaml
+- bases/config.com.netflix.titus_resourcepoolconfigs.yaml

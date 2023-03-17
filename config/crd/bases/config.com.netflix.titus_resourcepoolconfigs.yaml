@@ -1,0 +1,169 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.3
+  creationTimestamp: null
+  name: resourcepoolconfigs.config.com.netflix.titus
+spec:
+  group: config.com.netflix.titus
+  names:
+    kind: ResourcePoolConfig
+    listKind: ResourcePoolConfigList
+    plural: resourcepoolconfigs
+    singular: resourcepoolconfig
+  scope: Namespaced
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              name:
+                description: Resource pool name (for example 'critical', 'elastic',
+                  'gpu.p4', etc).
+                type: string
+              primaryInstanceType:
+                description: Primary instance type for the resource pool.
+                type: string
+              requestedAt:
+                description: Time at which the last resource request was made.
+                format: int64
+                type: integer
+              resourceCount:
+                description: Number of resource shapes requested. A total amount of
+                  requested resource is defined as resource_shape * resource_count.
+                format: int64
+                type: integer
+              resourceDemandStatus:
+                description: '[DEPRECATED] Resource demand fulfillment report.'
+                properties:
+                  reportedAt:
+                    description: Time at which the report was made.
+                    format: int64
+                    type: integer
+                  status:
+                    description: Resource provisioning status (Pending, Rejected,
+                      Fulfilled)
+                    type: string
+                  statusMessage:
+                    description: Human readable message.
+                    type: string
+                required:
+                - reportedAt
+                - status
+                - statusMessage
+                type: object
+              resourceShape:
+                description: Preferential machine shape (minimum size and resource
+                  ratio). A total amount of requested resource is defined as resource_shape
+                  * resource_count.
+                properties:
+                  cpu:
+                    format: int64
+                    type: integer
+                  diskMB:
+                    format: int64
+                    type: integer
+                  gpu:
+                    format: int64
+                    type: integer
+                  labels:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  memoryMB:
+                    format: int64
+                    type: integer
+                  networkMBPS:
+                    format: int64
+                    type: integer
+                required:
+                - cpu
+                - diskMB
+                - gpu
+                - memoryMB
+                - networkMBPS
+                type: object
+              scalingRules:
+                description: Resource pool scaling rules.
+                properties:
+                  autoScalingEnabled:
+                    description: Set to true to enable auto scaling of this resource
+                      pool.
+                    type: boolean
+                  maxIdle:
+                    description: Maximum idle capacity measured in number of shapes.
+                    format: int64
+                    type: integer
+                  maxSize:
+                    description: Resource pool maximum size limit (maximum number
+                      of shapes that can be ever allocated).
+                    format: int64
+                    type: integer
+                  minIdle:
+                    description: Minimum idle capacity measured in number of shapes.
+                    format: int64
+                    type: integer
+                  minSize:
+                    description: Resource pool minimum size limit (minimum number
+                      of shapes that can be ever allocated).
+                    format: int64
+                    type: integer
+                  minimumScaleUpStep:
+                    description: Minimum scale up step. The valid value range is between
+                      1 and MaxIdle. If MaxIdle is zero, MinimumScaleUpStep should
+                      be 1.
+                    format: int64
+                    type: integer
+                required:
+                - autoScalingEnabled
+                - maxIdle
+                - maxSize
+                - minIdle
+                - minSize
+                - minimumScaleUpStep
+                type: object
+            required:
+            - name
+            - primaryInstanceType
+            - requestedAt
+            - resourceCount
+            - resourceDemandStatus
+            - resourceShape
+            - scalingRules
+            type: object
+          status:
+            properties:
+              reportedAt:
+                description: Time at which the report was made.
+                format: int64
+                type: integer
+              status:
+                description: Resource provisioning status (Pending, Rejected, Fulfilled)
+                type: string
+              statusMessage:
+                description: Human readable message.
+                type: string
+            required:
+            - reportedAt
+            - status
+            - statusMessage
+            type: object
+        type: object
+    served: true
+    storage: true

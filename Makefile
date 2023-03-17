@@ -31,7 +31,13 @@ lint: $(GOBIN_TOOL)
 vet:
 	go vet ./...
 
+# Generate manifests e.g. CRD, RBAC etc.
+.PHONY: manifests
+manifests: controller-gen
+	$(CONTROLLER_GEN) crd paths="./..." output:crd:artifacts:config=config/crd/bases
+
 # Generate code
+.PHONY: generate
 generate: controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
@@ -59,3 +65,7 @@ clean:
 $(GOBIN_TOOL):
 	go get github.com/myitcv/gobin
 	go install github.com/myitcv/gobin
+
+.PHONY: kustomize-crd
+kustomize-crd:
+	kustomize build config/crd | kubectl apply -f -
