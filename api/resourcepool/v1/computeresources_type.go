@@ -33,8 +33,6 @@ type ComputeResource struct {
 	DiskMB int64 `json:"diskMB"`
 
 	NetworkMBPS int64 `json:"networkMBPS"`
-
-	BranchENIs int64 `json:"branchENIs"`
 }
 
 var (
